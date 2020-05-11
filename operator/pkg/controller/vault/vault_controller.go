@@ -1011,8 +1011,10 @@ func deploymentForConfigurer(v *vaultv1alpha1.Vault, configmaps corev1.ConfigMap
 
 	// merge provided VaultConfigurerPodSpec into the PodSpec defined above
 	// the values in VaultConfigurerPodSpec will never overwrite fields defined in the PodSpec above
-	if err := mergo.Merge(&podSpec, v.Spec.VaultConfigurerPodSpec); err != nil {
-		return nil, err
+	if v.Spec.VaultConfigurerPodSpec != nil {
+		if err := mergo.Merge(&podSpec, v.Spec.VaultConfigurerPodSpec); err != nil {
+			return nil, err
+		}
 	}
 
 	dep := &appsv1.Deployment{
@@ -1369,8 +1371,10 @@ func statefulSetForVault(v *vaultv1alpha1.Vault, externalSecretsToWatchItems []c
 
 	// merge provided VaultPodSpec into the PodSpec defined above
 	// the values in VaultPodSpec will never overwrite fields defined in the PodSpec above
-	if err := mergo.MergeWithOverwrite(&podSpec, v.Spec.VaultPodSpec); err != nil {
-		return nil, err
+	if v.Spec.VaultPodSpec != nil {
+		if err := mergo.MergeWithOverwrite(&podSpec, v.Spec.VaultPodSpec); err != nil {
+			return nil, err
+		}
 	}
 
 	podManagementPolicy := appsv1.ParallelPodManagement

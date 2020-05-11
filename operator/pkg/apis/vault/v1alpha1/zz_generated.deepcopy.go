@@ -420,7 +420,11 @@ func (in *VaultSpec) DeepCopyInto(out *VaultSpec) {
 			(*out)[key] = val
 		}
 	}
-	in.VaultPodSpec.DeepCopyInto(&out.VaultPodSpec)
+	if in.VaultPodSpec != nil {
+		in, out := &in.VaultPodSpec, &out.VaultPodSpec
+		*out = new(v1.PodSpec)
+		(*in).DeepCopyInto(*out)
+	}
 	if in.VaultConfigurerAnnotations != nil {
 		in, out := &in.VaultConfigurerAnnotations, &out.VaultConfigurerAnnotations
 		*out = make(map[string]string, len(*in))
@@ -435,7 +439,11 @@ func (in *VaultSpec) DeepCopyInto(out *VaultSpec) {
 			(*out)[key] = val
 		}
 	}
-	in.VaultConfigurerPodSpec.DeepCopyInto(&out.VaultConfigurerPodSpec)
+	if in.VaultConfigurerPodSpec != nil {
+		in, out := &in.VaultConfigurerPodSpec, &out.VaultConfigurerPodSpec
+		*out = new(v1.PodSpec)
+		(*in).DeepCopyInto(*out)
+	}
 	in.Config.DeepCopyInto(&out.Config)
 	in.ExternalConfig.DeepCopyInto(&out.ExternalConfig)
 	in.UnsealConfig.DeepCopyInto(&out.UnsealConfig)
