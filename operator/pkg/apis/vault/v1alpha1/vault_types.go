@@ -30,6 +30,7 @@ import (
 	"github.com/spf13/cast"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
+	extv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/utils/pointer"
@@ -74,7 +75,9 @@ func init() {
 	gob.Register(VaultExternalConfig{})
 }
 
-type VaultConfig map[string]interface{}
+type Config extv1beta1.JSON
+
+type VaultConfig extv1beta1.JSON
 
 func (c VaultConfig) DeepCopy() VaultConfig {
 	var buf bytes.Buffer
@@ -92,7 +95,7 @@ func (c VaultConfig) DeepCopy() VaultConfig {
 	return copy
 }
 
-type VaultExternalConfig map[string]interface{}
+type VaultExternalConfig extv1beta1.JSON
 
 func (c VaultExternalConfig) DeepCopy() VaultExternalConfig {
 	var buf bytes.Buffer
@@ -200,7 +203,7 @@ type VaultSpec struct {
 
 	// Config is the Vault Server configuration. See https://www.vaultproject.io/docs/configuration/ for more details.
 	// default:
-	Config VaultConfig `json:"config"`
+	Config extv1beta1.JSON `json:"config"`
 
 	// ExternalConfig is higher level configuration block which instructs the Bank Vaults Configurer to configure Vault
 	// through its API, thus allows setting up:
@@ -212,7 +215,7 @@ type VaultSpec struct {
 	// - Startup Secrets (Bank Vaults feature)
 	// A documented example: https://github.com/banzaicloud/bank-vaults/blob/master/vault-config.yml
 	// default:
-	ExternalConfig VaultExternalConfig `json:"externalConfig"`
+	ExternalConfig extv1beta1.JSON `json:"externalConfig"`
 
 	// UnsealConfig defines where the Vault cluster's unseal keys and root token should be stored after initialization.
 	// See the type's documentation for more details. Only one method may be specified.
@@ -418,7 +421,9 @@ func (spec *VaultSpec) GetStorage() map[string]interface{} {
 }
 
 func (spec *VaultSpec) getStorage() map[string]interface{} {
-	return cast.ToStringMap(spec.Config["storage"])
+	var config map[string]interface{}
+	_ = json.Unmarshal(spec.Config.Raw, &config)
+	return cast.ToStringMap(config["storage"])
 }
 
 // GetHAStorage returns Vault's ha_storage stanza
@@ -428,7 +433,9 @@ func (spec *VaultSpec) GetHAStorage() map[string]interface{} {
 }
 
 func (spec *VaultSpec) getHAStorage() map[string]interface{} {
-	return cast.ToStringMap(spec.Config["ha_storage"])
+	var config map[string]interface{}
+	_ = json.Unmarshal(spec.Config.Raw, &config)
+	return cast.ToStringMap(config["ha_storage"])
 }
 
 // GetEtcdStorage returns the etcd storage if configured or nil
@@ -536,7 +543,9 @@ func (spec *VaultSpec) GetTLSExpiryThreshold() time.Duration {
 }
 
 func (spec *VaultSpec) getListener() map[string]interface{} {
-	return cast.ToStringMap(spec.Config["listener"])
+	var config map[string]interface{}
+	_ = json.Unmarshal(spec.Config.Raw, &config)
+	return cast.ToStringMap(config["listener"])
 }
 
 // GetVaultImage returns the Vault image to use
@@ -684,19 +693,19 @@ func (spec *VaultSpec) IsStatsDDisabled() bool {
 
 // ConfigJSON returns the Config field as a JSON string
 func (spec *VaultSpec) ConfigJSON() string {
-	config, _ := json.Marshal(spec.Config)
-	return string(config)
+	return string(spec.Config.Raw)
 }
 
 // ExternalConfigJSON returns the ExternalConfig field as a JSON string
 func (spec *VaultSpec) ExternalConfigJSON() string {
-	config, _ := json.Marshal(spec.ExternalConfig)
-	return string(config)
+	return string(spec.ExternalConfig.Raw)
 }
 
 // IsAutoUnseal checks if auto-unseal is configured
 func (spec *VaultSpec) IsAutoUnseal() bool {
-	_, ok := spec.Config["seal"]
+	var config map[string]interface{}
+	_ = json.Unmarshal(spec.Config.Raw, &config)
+	_, ok := config["seal"]
 	return ok
 }
 
