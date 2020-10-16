@@ -39,12 +39,12 @@ require (
 	github.com/opencontainers/image-spec v1.0.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pierrec/lz4 v2.2.5+incompatible // indirect
-	github.com/prometheus/client_golang v1.5.1
+	github.com/prometheus/client_golang v1.7.1
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sirupsen/logrus v1.6.0
 	github.com/slok/kubewebhook v0.9.1
 	github.com/spf13/cast v1.3.1
-	github.com/spf13/cobra v0.0.5
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.6.1
 	gocloud.dev v0.19.1-0.20200414210820-bb59d59f26d5
@@ -52,6 +52,7 @@ require (
 	google.golang.org/api v0.15.0
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	k8s.io/api v0.19.2
+	k8s.io/apiextensions-apiserver v0.19.2
 	k8s.io/apimachinery v0.19.2
 	k8s.io/client-go v0.19.2
 	k8s.io/code-generator v0.19.2

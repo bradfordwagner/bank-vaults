@@ -20,8 +20,6 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/json"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"net/http"
@@ -507,7 +505,7 @@ func (r *ReconcileVault) Reconcile(request reconcile.Request) (reconcile.Result,
 	}
 
 	// Create configurer if there is any external config
-	if len(v.Spec.ExternalConfig) != 0 {
+	if len(v.Spec.ExternalConfig.Raw) != 0 {
 		err := r.deployConfigurer(v, tlsAnnotations)
 		if err != nil {
 			return reconcile.Result{}, err
@@ -1964,9 +1962,7 @@ func withNamespaceEnv(v *vaultv1alpha1.Vault, envs []corev1.EnvVar) []corev1.Env
 }
 
 func withContainerSecurityContext(v *vaultv1alpha1.Vault) *corev1.SecurityContext {
-	var config map[string]interface{}
-	_ = json.Unmarshal(v.Spec.Config.Raw, &config)
-
+	config := v.Spec.GetVaultConfig()
 	if cast.ToBool(config["disable_mlock"]) {
 		return &corev1.SecurityContext{}
 	}
